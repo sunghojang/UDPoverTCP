@@ -26,6 +26,16 @@ To test the bridge make sure that SNBTests broadcasts at the udp port SNBGui
 is listening on, and that SNBTests listends at the port the SNBGui is
 broadcasting on.
 
+License
+=======
+
+See the LICENSE file in this repository.
+
+Copyright
+=========
+
+Written by Patrick Hanckmann (hanckmann@gmail.com).
+
 To Do
 =====
 
