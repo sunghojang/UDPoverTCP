@@ -26,12 +26,13 @@ bool UDPClient::connect(const qint64 &port)
 
     udpSocket = new QUdpSocket(this);
 
+
     QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
     QObject::connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
 
-    if (!udpSocket->bind(port))
+    if (!udpSocket->bind(port, QUdpSocket::ShareAddress))
     {
-        qDebug() << "bind failed";
+        qDebug() << "bind (with share address) failed";
         return false;
     }
 
