@@ -32,7 +32,10 @@ void SNBGui::updateLog(QString log)
 
 void SNBGui::updateConnectionCount(int count)
 {
-    ui->statusBar->showMessage("Connected TCP Clients: " + QString::number(count));
+    if(utStarted)
+        ui->statusBar->showMessage("Connected TCP Clients: " + QString::number(count));
+    else
+        ui->statusBar->showMessage("");
 }
 
 void SNBGui::on_buttonUTStartStop_clicked()
@@ -89,6 +92,7 @@ void SNBGui::on_buttonUTStartStop_clicked()
         udpclient->connect(ui->spinBoxUdpListenPort->value());
 
         utStarted = true;
+        updateConnectionCount(0);
     }
 }
 
@@ -108,6 +112,7 @@ void SNBGui::on_buttonTUStartStop_clicked()
         ui->spinBoxUdpBroadcastPort->setDisabled(false);
         ui->spinBoxTcpClientPort->setDisabled(false);
         ui->lineEditTcpServerAddress->setDisabled(false);
+        ui->statusBar->showMessage("");
 
         // Stop the services
         tcpclient->disconnect();
@@ -115,7 +120,7 @@ void SNBGui::on_buttonTUStartStop_clicked()
 
         // Delete the services
         tcpclient->deleteLater();
-        udpclient->deleteLater();
+        //udpclient->deleteLater();
 
         tuStarted = false;
     }
@@ -127,6 +132,7 @@ void SNBGui::on_buttonTUStartStop_clicked()
         ui->spinBoxUdpBroadcastPort->setDisabled(true);
         ui->spinBoxTcpClientPort->setDisabled(true);
         ui->lineEditTcpServerAddress->setDisabled(true);
+        ui->statusBar->showMessage("Connected to " + ui->lineEditTcpServerAddress->text() + ":" + QString::number(ui->spinBoxTcpClientPort->value()));
 
         // Init the services
         tcpclient = new TCPClient();
