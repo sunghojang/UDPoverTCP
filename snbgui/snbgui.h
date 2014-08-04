@@ -35,6 +35,8 @@ private slots:
     void on_buttonUTStartStop_clicked();
     void on_buttonTUStartStop_clicked();
 
+    void on_buttonClearLogger_clicked();
+
 private:
     Ui::SNBGui *ui;
     HTMLLogger logger;

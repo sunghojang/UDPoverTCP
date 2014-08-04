@@ -18,6 +18,7 @@ SNBGui::SNBGui(QWidget *parent) :
     QObject::connect(&logger, SIGNAL(logUpdated(QString)), this, SLOT(updateLog(QString)));
 
     logger.addInfo(classname, "Started");
+    logger.setMaxLines(1000);
 }
 
 SNBGui::~SNBGui()
@@ -88,8 +89,10 @@ void SNBGui::on_buttonUTStartStop_clicked()
         QObject::connect(tcpserver, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
         QObject::connect(tcpserver, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
 
-        tcpserver->start(ui->spinBoxTcpServerPort->value());
-        udpclient->connect(ui->spinBoxUdpListenPort->value());
+        if (!tcpserver->start(ui->spinBoxTcpServerPort->value()))
+            logger.addError(classname, "TCP server failed to start");
+        if (!udpclient->connect(ui->spinBoxUdpListenPort->value()))
+            logger.addError(classname, "UDP client failed to start");
 
         utStarted = true;
         updateConnectionCount(0);
@@ -120,7 +123,7 @@ void SNBGui::on_buttonTUStartStop_clicked()
 
         // Delete the services
         tcpclient->deleteLater();
-        //udpclient->deleteLater();
+        //udpclient->deleteLater(); // causes crash
 
         tuStarted = false;
     }
@@ -149,9 +152,16 @@ void SNBGui::on_buttonTUStartStop_clicked()
         QObject::connect(udpserver, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
         QObject::connect(udpserver, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
 
-        udpserver->start(ui->spinBoxUdpBroadcastPort->value());
-        tcpclient->connect(ui->lineEditTcpServerAddress->text(), ui->spinBoxTcpClientPort->value());
+        if (!udpserver->start(ui->spinBoxUdpBroadcastPort->value()))
+            logger.addError(classname, "UDP server failed to start");
+        if (!tcpclient->connect(ui->lineEditTcpServerAddress->text(), ui->spinBoxTcpClientPort->value()))
+            logger.addError(classname, "TCP client failed to start");
 
         tuStarted = true;
     }
+}
+
+void SNBGui::on_buttonClearLogger_clicked()
+{
+    logger.clear();
 }
