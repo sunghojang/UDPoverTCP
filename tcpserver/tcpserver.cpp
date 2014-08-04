@@ -28,6 +28,11 @@ bool TCPServer::start(const quint16 &port)
     bool result1 = QObject::connect(server, SIGNAL(newConnection()), this, SLOT(connectClient()));
     bool result2 = server->listen(QHostAddress::Any, port);
 
+    if (!result1)
+        emit error(classname, "TCP server could not connect newConnection");
+    if (!result2)
+        emit error(classname, "TCP server failed to start listening");
+
     return (result1 && result2);
 }
 
@@ -50,9 +55,7 @@ void TCPServer::sendData(const QByteArray &data)
 
     // Do nothing if there are no active connections
     if (socketList.size() <= 0)
-    {
         return;
-    }
 
     // Build and send the package
     QByteArray header = "TNO";
@@ -61,7 +64,8 @@ void TCPServer::sendData(const QByteArray &data)
         socketList.at(i)->write(header);
         socketList.at(i)->write(IntToArray((quint16) data.size()));
         socketList.at(i)->write(data);
-        socketList.at(i)->flush();
+        if (!socketList.at(i)->flush())
+            emit warning(classname, "TCP server socket flush failed");
         emit info(classname, "send data: " + QString(data));
     }
 }

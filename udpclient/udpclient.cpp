@@ -6,8 +6,6 @@
 
 #include "udpclient.h"
 
-#include <QDebug>
-
 UDPClient::UDPClient(QObject *parent) :
     QObject(parent), udpSocket(0)
 {
@@ -32,8 +30,12 @@ bool UDPClient::connect(const qint64 &port)
 
     if (!udpSocket->bind(port, QUdpSocket::ShareAddress))
     {
-        qDebug() << "bind (with share address) failed";
-        return false;
+        emit warning(classname, "bind (with ShareAddress) failed");
+        if (!udpSocket->bind(port, QUdpSocket::ReuseAddressHint))
+        {
+            emit info(classname, "bind (with ReuseAddressHint) failed");
+            return false;
+        }
     }
 
     return true;

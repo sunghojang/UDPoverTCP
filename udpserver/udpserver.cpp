@@ -6,8 +6,6 @@
 
 #include "udpserver.h"
 
-#include <QDebug>
-
 UDPServer::UDPServer(QObject *parent) :
     QObject(parent), udpSocket(0)
 {
