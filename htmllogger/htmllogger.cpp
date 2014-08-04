@@ -30,6 +30,8 @@ int HTMLLogger::getMaxLines()
 void HTMLLogger::clear()
 {
     html.clear();
+
+    emit logUpdated(generateHtmlLog());
 }
 
 void HTMLLogger::addInfo(QString sender, QString info)
@@ -65,5 +67,10 @@ void HTMLLogger::addLine(QString color, QString text)
             html.removeLast();
     }
 
-    emit logUpdated(header + html.join("") + footer);
+    emit logUpdated(generateHtmlLog());
+}
+
+QString HTMLLogger::generateHtmlLog()
+{
+    return header + html.join("") + footer;
 }

@@ -35,6 +35,8 @@ private slots:
     void addLine(QString color, QString text);
 
 private:
+    QString generateHtmlLog();
+
     int maxLines;
     int lineCount;
     QString header;
