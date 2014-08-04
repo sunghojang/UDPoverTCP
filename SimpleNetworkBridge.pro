@@ -7,11 +7,9 @@ SUBDIRS += \
     udpclient\
 \
     timedsignal \
-    tcptest \
-    udptest \
 \
     htmllogger \
 \
     snb \
     snbgui \
-    SNBTests
+    snbtests
