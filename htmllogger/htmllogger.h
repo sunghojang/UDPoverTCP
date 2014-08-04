@@ -21,6 +21,8 @@ public:
     void setMaxLines(const int &maxlines);
     int getMaxLines();
 
+    void clear();
+
 signals:
     void logUpdated(QString html);
 

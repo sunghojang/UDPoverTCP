@@ -27,6 +27,11 @@ int HTMLLogger::getMaxLines()
     return maxLines;
 }
 
+void HTMLLogger::clear()
+{
+    html.clear();
+}
+
 void HTMLLogger::addInfo(QString sender, QString info)
 {
     QString color = "black";
