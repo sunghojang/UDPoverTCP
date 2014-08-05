@@ -14,7 +14,6 @@
 #include "tcpclient.h"
 #include "tcpserver.h"
 #include "udpclient.h"
-#include "udpserver.h"
 
 namespace Ui {
 class SNBGui;
@@ -38,16 +37,24 @@ private slots:
     void on_buttonClearLogger_clicked();
 
 private:
+    bool controlTcpServer(const bool &start);
+    bool controlTcpClient(const bool &start);
+    bool controlUdpClient(const bool &start, const bool &server);
+
+    void addIpAddressToLog();
+
     Ui::SNBGui *ui;
     HTMLLogger logger;
 
     TCPClient *tcpclient;
     TCPServer *tcpserver;
     UDPClient *udpclient;
-    UDPServer *udpserver;
 
     bool tuStarted;
     bool utStarted;
+
+    bool _start;
+    bool _stop;
 
     QString classname;
 };

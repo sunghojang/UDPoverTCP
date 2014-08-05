@@ -11,7 +11,7 @@
 static inline qint16 ArrayToInt(QByteArray source);
 
 TCPClient::TCPClient(QObject *parent)
-:   QObject(parent), tcpSocket(0)
+    :   QObject(parent), tcpSocket(0)
 {
     classname = "TCPClient";
 }

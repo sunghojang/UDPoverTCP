@@ -18,7 +18,7 @@ class UDPClient : public QObject
 public:
     explicit UDPClient(QObject *parent = 0);
 
-    bool connect(const qint64 &port = 49999);
+    bool connect(const qint64 &port = 49999, const bool &listen = true);
     void disconnect();
 
 signals:
@@ -27,6 +27,9 @@ signals:
     void info(QString sender, QString info);
     void warning(QString sender, QString warning);
     void error(QString sender, QString error);
+
+public slots:
+    void sendData(const QByteArray &data);
 
 private slots:
     void readData();

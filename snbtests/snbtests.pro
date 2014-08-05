@@ -4,7 +4,6 @@
 #
 #-------------------------------------------------
 
-include(../udpserver.pri)
 include(../udpclient.pri)
 include(../htmllogger.pri)
 

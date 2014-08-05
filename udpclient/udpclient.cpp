@@ -12,7 +12,7 @@ UDPClient::UDPClient(QObject *parent) :
     classname = "UDPClient";
 }
 
-bool UDPClient::connect(const qint64 &port)
+bool UDPClient::connect(const qint64 &port, const bool &listen)
 {
     // Check if the socket is already initialised
     if(udpSocket)
@@ -24,19 +24,27 @@ bool UDPClient::connect(const qint64 &port)
 
     udpSocket = new QUdpSocket(this);
 
-
-    QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+    if (listen)
+    {
+        if (!QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData())))
+            emit error(classname, "could not connect to readData");
+    }
     QObject::connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
 
+#ifdef Q_OS_WIN32
+    /* Windows */
+    if (!udpSocket->bind(port, QUdpSocket::ReuseAddressHint))
+    {
+        emit error(classname, "bind (with ReuseAddressHint) failed (win32)");
+        return false;
+    }
+#else
     if (!udpSocket->bind(port, QUdpSocket::ShareAddress))
     {
-        emit warning(classname, "bind (with ShareAddress) failed");
-        if (!udpSocket->bind(port, QUdpSocket::ReuseAddressHint))
-        {
-            emit info(classname, "bind (with ReuseAddressHint) failed");
-            return false;
-        }
+        emit error(classname, "bind (with ShareAddress) failed");
+        return false;
     }
+#endif
 
     return true;
 }
@@ -47,10 +55,21 @@ void UDPClient::disconnect()
 
     // Disconnect
     udpSocket->disconnectFromHost();
-    //udpSocket->abort();
+    udpSocket->deleteLater();
 
     // Reset
     udpSocket = 0;
+}
+
+void UDPClient::sendData(const QByteArray &data)
+{
+    if (!udpSocket)
+        return;
+
+    udpSocket->writeDatagram(data.data(), data.size(), QHostAddress::Broadcast, port);
+    udpSocket->flush();
+
+    emit info(classname, "send data: " + QString(data));
 }
 
 void UDPClient::readData()
@@ -62,8 +81,8 @@ void UDPClient::readData()
         data.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(data.data(), data.size());
 
-        emit dataReceived(data);
         emit info(classname, "received data: " + QString(data));
+        emit dataReceived(data);
     }
 }
 
