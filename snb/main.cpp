@@ -9,7 +9,6 @@
 
 #include "tcpserver.h"
 #include "tcpclient.h"
-#include "udpserver.h"
 #include "udpclient.h"
 
 int main(int argc, char *argv[])
@@ -32,11 +31,11 @@ int main(int argc, char *argv[])
 
     // Side two
     TCPClient tc;
-    UDPServer us;
+    UDPClient us;
 
     QObject::connect(&tc, SIGNAL(dataReceived(QByteArray)), &us, SLOT(sendData(QByteArray)));
 
-    us.start(udpport);
+    us.connect(udpport);
     tc.connect(host, tcpport);
 
     return a.exec();
