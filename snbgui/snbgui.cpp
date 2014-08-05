@@ -213,10 +213,20 @@ bool SNBGui::controlUdpClient(const bool &start, const bool& server)
         QObject::connect(udpclient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
         QObject::connect(udpclient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
 
-        if (!udpclient->connect(ui->spinBoxUdpListenPort->value()))
+        if(server)
+        {if (!udpclient->connect(ui->spinBoxUdpListenPort->value()))
+            {
+                logger.addError(classname, "UDP client failed to start");
+                return false;
+            }
+        }
+        else
         {
-            logger.addError(classname, "UDP client failed to start");
-            return false;
+            if (!udpclient->connect(ui->spinBoxUdpBroadcastPort->value()))
+            {
+                logger.addError(classname, "UDP client failed to start");
+                return false;
+            }
         }
     }
     else

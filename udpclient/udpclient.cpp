@@ -79,8 +79,8 @@ void UDPClient::readData()
         data.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(data.data(), data.size());
 
-        emit dataReceived(data);
         emit info(classname, "received data: " + QString(data));
+        emit dataReceived(data);
     }
 }
 

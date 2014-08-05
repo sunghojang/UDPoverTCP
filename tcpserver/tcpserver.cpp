@@ -81,7 +81,6 @@ void TCPServer::sendData(const QByteArray &data)
 
 void TCPServer::clientDataReceived(const QByteArray &data)
 {
-    emit info(classname, "Received data from client");
     emit dataReceived(data);
 }
 
