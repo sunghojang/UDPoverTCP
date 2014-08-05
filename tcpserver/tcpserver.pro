@@ -1,3 +1,5 @@
+include(../tcpclient.pri)
+
 QT       += core
 QT       += network
 

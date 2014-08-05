@@ -41,11 +41,15 @@ void TCPServer::stop()
     if(!server)
         return;
 
-    // Cleanup the socketMap
+    // Cleanup the socketMap and clientMap
     QMap<QTcpSocket *, QTcpSocket *>::iterator ism;
     for (ism = socketMap.begin(); ism != socketMap.end(); ++ism)
     {
         QTcpSocket *socket = ism.value();
+
+        clientMap[socket]->disconnect();
+        clientMap[socket]->deleteLater();
+        clientMap.remove(socket);
 
         socket->close();
         socket->deleteLater();
@@ -93,18 +97,30 @@ void TCPServer::sendData(const QByteArray &data)
 
 void TCPServer::clientDataReceived(const QByteArray &data)
 {
+    emit info(classname, "Received data from client");
     emit dataReceived(data);
 }
 
 void TCPServer::connectClient()
 {
     emit info(classname, "adding new connection");
+
+    // Create socket and client
     while(server->hasPendingConnections())
     {
         QTcpSocket *socket = server->nextPendingConnection();
         QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(disconnectClient()));
 
         socketMap[socket] = socket;
+
+        TCPClient *client = new TCPClient(this);
+        client->connect(socket);
+        QObject::connect(client, SIGNAL(dataReceived(QByteArray)), this, SLOT(clientDataReceived(QByteArray)));
+        QObject::connect(client, SIGNAL(info(QString,QString)), this, SLOT(clientInfo(QString,QString)));
+        QObject::connect(client, SIGNAL(warning(QString,QString)), this, SLOT(clientWarning(QString,QString)));
+        QObject::connect(client, SIGNAL(error(QString,QString)), this, SLOT(clientError(QString,QString)));
+
+        clientMap[socket] = client;
     }
 
     emit connectionCount(socketMap.size());
@@ -115,6 +131,9 @@ void TCPServer::disconnectClient()
     QTcpSocket* socket = (QTcpSocket*)sender();
 
     // Cleanup specific socket
+    clientMap[socket]->disconnect();
+    clientMap[socket]->deleteLater();
+    clientMap.remove(socket);
     socketMap[socket]->close();
     socketMap[socket]->deleteLater();
     socketMap.remove(socket);

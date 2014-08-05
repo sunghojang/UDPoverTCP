@@ -16,6 +16,8 @@
 #include <QByteArray>
 #include <QDataStream>
 
+#include "tcpclient.h"
+
 class TCPServer : public QObject
 {
     Q_OBJECT
@@ -49,6 +51,7 @@ private slots:
 private:
     QTcpServer *server;
     QMap<QTcpSocket *, QTcpSocket *> socketMap;
+    QMap<QTcpSocket *, TCPClient *> clientMap;
 
     QString classname;
 };
