@@ -9,9 +9,11 @@
 #include "tcpclient.h"
 
 static inline qint16 ArrayToInt(QByteArray source);
+static inline QByteArray IntToArray(qint16 source);
+
 
 TCPClient::TCPClient(QObject *parent)
-:   QObject(parent), tcpSocket(0)
+    :   QObject(parent), tcpSocket(0)
 {
     classname = "TCPClient";
 }
@@ -79,6 +81,25 @@ void TCPClient::disconnect()
     tcpSocket = 0;
     blockSize = 0;
     buffer->clear();
+}
+
+void TCPClient::sendData(const QByteArray &data)
+{
+    if (!tcpSocket)
+        return;
+
+    // Build the message
+    QByteArray message;
+    message.append("TNO");  // Header
+    message.append(IntToArray((quint16) data.size()));
+    message.append(data);
+
+    // Send the message
+    tcpSocket->write(message);
+    if (!tcpSocket->flush())
+        emit warning(classname, "TCP client socket flush failed");
+
+    emit info(classname, "send data: " + QString(data));
 }
 
 void TCPClient::readData()
@@ -150,5 +171,14 @@ qint16 ArrayToInt(QByteArray source) // Use qint16 to ensure that the number hav
     qint16 temp;
     QDataStream data(&source, QIODevice::ReadWrite);
     data >> temp;
+    return temp;
+}
+
+QByteArray IntToArray(qint16 source) // Use qint16 to ensure that the number have 2 bytes
+{
+    //Avoid use of cast, this is the Qt way to serialize objects
+    QByteArray temp;
+    QDataStream data(&temp, QIODevice::ReadWrite);
+    data << source;
     return temp;
 }

@@ -41,22 +41,6 @@ void TCPServer::stop()
     if(!server)
         return;
 
-    // Cleanup the socketMap and clientMap
-    QMap<QTcpSocket *, QTcpSocket *>::iterator ism;
-    for (ism = socketMap.begin(); ism != socketMap.end(); ++ism)
-    {
-        QTcpSocket *socket = ism.value();
-
-        clientMap[socket]->disconnect();
-        clientMap[socket]->deleteLater();
-        clientMap.remove(socket);
-
-        socket->close();
-        socket->deleteLater();
-
-        socketMap.remove(socket);
-    }
-
     // Cleanup the server
     server->close();
     server->deleteLater();

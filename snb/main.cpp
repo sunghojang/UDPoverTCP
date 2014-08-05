@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
 
     // Side two
     TCPClient tc;
-    UDPServer us;
+    //UDPServer us;
 
-    QObject::connect(&tc, SIGNAL(dataReceived(QByteArray)), &us, SLOT(sendData(QByteArray)));
+    //QObject::connect(&tc, SIGNAL(dataReceived(QByteArray)), &us, SLOT(sendData(QByteArray)));
 
-    us.start(udpport);
+    //us.start(udpport);
     tc.connect(host, tcpport);
 
     return a.exec();

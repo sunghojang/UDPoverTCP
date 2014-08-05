@@ -10,7 +10,7 @@
 SNBTests::SNBTests(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SNBTests),
-    udpclient(0),
+    udpListenClient(0),
     started(0)
 {
     ui->setupUi(this);
@@ -44,43 +44,43 @@ void SNBTests::receivedData(QByteArray data)
 void SNBTests::on_spinBoxListenPort_valueChanged(int arg1)
 {
     Q_UNUSED(arg1);
-    if(udpclient)
+    if(udpListenClient)
     {
-        udpclient->disconnect();
-        udpclient->deleteLater();
+        udpListenClient->disconnect();
+        udpListenClient->deleteLater();
     }
 
     // Start again with new port
-    udpclient = new UDPClient();
-    QObject::connect(udpclient, SIGNAL(dataReceived(QByteArray)), this, SLOT(receivedData(QByteArray)));
+    udpListenClient = new UDPClient();
+    QObject::connect(udpListenClient, SIGNAL(dataReceived(QByteArray)), this, SLOT(receivedData(QByteArray)));
 
     // Connect logging
-    QObject::connect(udpclient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
-    QObject::connect(udpclient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
-    QObject::connect(udpclient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
+    QObject::connect(udpListenClient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
+    QObject::connect(udpListenClient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
+    QObject::connect(udpListenClient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
 
-    if (!udpclient->connect(ui->spinBoxListenPort->value()))
+    if (!udpListenClient->connect(ui->spinBoxListenPort->value()))
         logger.addError(classname, "UDP client failed to start");
 }
 
 void SNBTests::on_buttonSend_clicked()
 {
     // Start server and connect logging
-    udpserver = new UDPServer();
+    UDPClient *udpSendClient = new UDPClient();
 
-    QObject::connect(udpserver, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
-    QObject::connect(udpserver, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
-    QObject::connect(udpserver, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
+    QObject::connect(udpSendClient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
+    QObject::connect(udpSendClient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
+    QObject::connect(udpSendClient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
 
-    if (!udpserver->start(ui->spinBoxBroadcastPort->value()))
-        logger.addError(classname, "UDP server failed to start");
+    if (!udpSendClient->connect(ui->spinBoxBroadcastPort->value()))
+        logger.addError(classname, "UDP client failed to start");
 
     // Send data
-    udpserver->sendData(ui->lineEdit->text().toAscii());
+    udpSendClient->sendData(ui->lineEdit->text().toAscii());
 
     // Stop server
-    udpserver->stop();
-    udpserver->deleteLater();
+    udpSendClient->disconnect();
+    udpSendClient->deleteLater();
 }
 
 void SNBTests::on_buttonClearLogger_clicked()

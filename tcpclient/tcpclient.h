@@ -30,6 +30,9 @@ signals:
     void warning(QString sender, QString warning);
     void error(QString sender, QString error);
 
+public slots:
+    void sendData(const QByteArray &data);
+
 private slots:
     void readData();
     void displayError(QAbstractSocket::SocketError socketError);

@@ -25,7 +25,8 @@ bool UDPClient::connect(const qint64 &port)
     udpSocket = new QUdpSocket(this);
 
 
-    QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+    if (!QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData())))
+        emit error(classname, "could not connect to readData");
     QObject::connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
 
     if (!udpSocket->bind(port, QUdpSocket::ShareAddress))

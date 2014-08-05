@@ -12,7 +12,6 @@
 
 #include "htmllogger.h"
 #include "udpclient.h"
-#include "udpserver.h"
 
 namespace Ui {
 class SNBTests;
@@ -39,8 +38,7 @@ private:
     Ui::SNBTests *ui;
     HTMLLogger logger;
 
-    UDPClient *udpclient;
-    UDPServer *udpserver;
+    UDPClient *udpListenClient;
 
     bool started;
 

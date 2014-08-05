@@ -10,7 +10,8 @@
 SNBGui::SNBGui(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SNBGui),
-    tuStarted(0), utStarted(0)
+    tuStarted(0), utStarted(0),
+    _start(true), _stop(false)
 {
     ui->setupUi(this);
     classname = "SNBGui";
@@ -56,12 +57,10 @@ void SNBGui::on_buttonUTStartStop_clicked()
         ui->spinBoxTcpServerPort->setDisabled(false);
 
         // Stop the services
-        udpclient->disconnect();
-        tcpserver->stop();
+        controlTcpServer(_stop);
+        controlUdpClient(_stop, true);
 
-        // Delete the services
-        udpclient->deleteLater();
-        tcpserver->deleteLater();
+        updateConnectionCount(0);
 
         utStarted = false;
     }
@@ -73,29 +72,17 @@ void SNBGui::on_buttonUTStartStop_clicked()
         ui->spinBoxUdpListenPort->setDisabled(true);
         ui->spinBoxTcpServerPort->setDisabled(true);
 
-        // Init the services
-        udpclient = new UDPClient();
+        // Create the service
         tcpserver = new TCPServer();
+        udpclient = new UDPClient();
 
-        QObject::connect(udpclient, SIGNAL(dataReceived(QByteArray)), tcpserver, SLOT(sendData(QByteArray)));
-        QObject::connect(tcpserver, SIGNAL(connectionCount(int)), this, SLOT(updateConnectionCount(int)));
+        // Start the services
+        controlTcpServer(_start);
+        controlUdpClient(_start, true);
 
-        // Connect logging
-        QObject::connect(udpclient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
-        QObject::connect(udpclient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
-        QObject::connect(udpclient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
-
-        QObject::connect(tcpserver, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
-        QObject::connect(tcpserver, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
-        QObject::connect(tcpserver, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
-
-        if (!tcpserver->start(ui->spinBoxTcpServerPort->value()))
-            logger.addError(classname, "TCP server failed to start");
-        if (!udpclient->connect(ui->spinBoxUdpListenPort->value()))
-            logger.addError(classname, "UDP client failed to start");
+        updateConnectionCount(0);
 
         utStarted = true;
-        updateConnectionCount(0);
     }
 }
 
@@ -118,12 +105,10 @@ void SNBGui::on_buttonTUStartStop_clicked()
         ui->statusBar->showMessage("");
 
         // Stop the services
-        tcpclient->disconnect();
-        udpserver->stop();
+        controlTcpClient(_stop);
+        controlUdpClient(_stop, false);
 
-        // Delete the services
-        tcpclient->deleteLater();
-        //udpclient->deleteLater(); // causes crash
+        updateConnectionCount(0);
 
         tuStarted = false;
     }
@@ -137,25 +122,15 @@ void SNBGui::on_buttonTUStartStop_clicked()
         ui->lineEditTcpServerAddress->setDisabled(true);
         ui->statusBar->showMessage("Connected to " + ui->lineEditTcpServerAddress->text() + ":" + QString::number(ui->spinBoxTcpClientPort->value()));
 
-        // Init the services
+        // Creating the service
+        udpclient = new UDPClient();
         tcpclient = new TCPClient();
-        udpserver = new UDPServer();
 
-        QObject::connect(tcpclient, SIGNAL(dataReceived(QByteArray)), udpserver, SLOT(sendData(QByteArray)));
+        // Start the services
+        controlTcpClient(_start);
+        controlUdpClient(_start, false);
 
-        // Connect logging
-        QObject::connect(tcpclient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
-        QObject::connect(tcpclient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
-        QObject::connect(tcpclient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
-
-        QObject::connect(udpserver, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
-        QObject::connect(udpserver, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
-        QObject::connect(udpserver, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
-
-        if (!udpserver->start(ui->spinBoxUdpBroadcastPort->value()))
-            logger.addError(classname, "UDP server failed to start");
-        if (!tcpclient->connect(ui->lineEditTcpServerAddress->text(), ui->spinBoxTcpClientPort->value()))
-            logger.addError(classname, "TCP client failed to start");
+        updateConnectionCount(0);
 
         tuStarted = true;
     }
@@ -164,4 +139,91 @@ void SNBGui::on_buttonTUStartStop_clicked()
 void SNBGui::on_buttonClearLogger_clicked()
 {
     logger.clear();
+}
+
+bool SNBGui::controlTcpServer(const bool &start)
+{
+    if(start)
+    {
+        QObject::connect(tcpserver, SIGNAL(connectionCount(int)), this, SLOT(updateConnectionCount(int)));
+
+        // Connect logging
+        QObject::connect(tcpserver, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
+        QObject::connect(tcpserver, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
+        QObject::connect(tcpserver, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
+
+        if (!tcpserver->start(ui->spinBoxTcpServerPort->value()))
+        {
+            logger.addError(classname, "TCP server failed to start");
+            return false;
+        }
+    }
+    else
+    {
+        // Stop and delete the service
+        tcpserver->stop();
+        tcpserver->deleteLater();
+    }
+    return true;
+}
+
+bool SNBGui::controlTcpClient(const bool &start)
+{
+    if(start)
+    {
+        // Create the service
+        tcpclient = new TCPClient();
+
+        QObject::connect(tcpclient, SIGNAL(dataReceived(QByteArray)), udpclient, SLOT(sendData(QByteArray)));
+
+        // Connect logging
+        QObject::connect(tcpclient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
+        QObject::connect(tcpclient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
+        QObject::connect(tcpclient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
+
+        if (!tcpclient->connect(ui->lineEditTcpServerAddress->text(), ui->spinBoxTcpClientPort->value()))
+        {
+            logger.addError(classname, "TCP client failed to start");
+            return false;
+        }
+    }
+    else
+    {
+        // Stop and delete the services
+        tcpclient->disconnect();
+        tcpclient->deleteLater();
+    }
+    return true;
+}
+
+bool SNBGui::controlUdpClient(const bool &start, const bool& server)
+{
+    if(start)
+    {
+        if(server)
+        {
+            QObject::connect(udpclient, SIGNAL(dataReceived(QByteArray)), tcpserver, SLOT(sendData(QByteArray)));
+        }
+        else
+        {
+            QObject::connect(udpclient, SIGNAL(dataReceived(QByteArray)), tcpclient, SLOT(sendData(QByteArray)));
+        }
+        // Connect logging
+        QObject::connect(udpclient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
+        QObject::connect(udpclient, SIGNAL(warning(QString,QString)), &logger, SLOT(addWarning(QString,QString)));
+        QObject::connect(udpclient, SIGNAL(error(QString,QString)), &logger, SLOT(addError(QString,QString)));
+
+        if (!udpclient->connect(ui->spinBoxUdpListenPort->value()))
+        {
+            logger.addError(classname, "UDP client failed to start");
+            return false;
+        }
+    }
+    else
+    {
+        // Stop and delete the service
+        udpclient->disconnect();
+        udpclient->deleteLater();
+    }
+    return true;
 }
