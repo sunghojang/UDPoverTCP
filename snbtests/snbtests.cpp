@@ -38,6 +38,7 @@ void SNBTests::updateLog(QString log)
 
 void SNBTests::receivedData(QByteArray data)
 {
+    Q_UNUSED(data)
     // If we want to do anything with this data
     //logger.addInfo("DATA", QString(data));
 }
