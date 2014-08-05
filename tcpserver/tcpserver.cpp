@@ -70,6 +70,11 @@ void TCPServer::sendData(const QByteArray &data)
     }
 }
 
+void TCPServer::clientDataReceived(const QByteArray &data)
+{
+    emit dataReceived(data);
+}
+
 void TCPServer::connectClient()
 {
     emit info(classname, "adding new connection");
@@ -103,6 +108,21 @@ void TCPServer::disconnectClient()
         emit error(classname, "problem removing connection, count: " + QString::number(removed));
 
     emit connectionCount(socketList.size());
+}
+
+void TCPServer::clientInfo(const QString &sender, const QString &message)
+{
+    emit info(classname + "->" + sender, message);
+}
+
+void TCPServer::clientWarning(const QString &sender, const QString &message)
+{
+    emit warning(classname + "->" + sender, message);
+}
+
+void TCPServer::clientError(const QString &sender, const QString &message)
+{
+    emit error(classname + "->" + sender, message);
 }
 
 QByteArray IntToArray(qint16 source) // Use qint16 to ensure that the number have 2 bytes

@@ -27,6 +27,7 @@ public:
     void stop();
 
 signals:
+    void dataReceived(QByteArray data);
     void connectionCount(int count);
 
     void info(QString sender, QString info);
@@ -35,10 +36,15 @@ signals:
 
 public slots:
     void sendData(const QByteArray &data);
+    void clientDataReceived(const QByteArray &data);
 
 private slots:
     void connectClient();
     void disconnectClient();
+
+    void clientInfo(const QString &sender, const QString &message);
+    void clientWarning(const QString &sender, const QString &message);
+    void clientError(const QString &sender, const QString &message);
 
 private:
     QTcpServer *server;
