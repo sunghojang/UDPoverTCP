@@ -41,11 +41,25 @@ void TCPServer::stop()
     if(!server)
         return;
 
-    emit warning(classname, "stopped");
+    // Cleanup the socketMap
+    QMap<QTcpSocket *, QTcpSocket *>::iterator ism;
+    for (ism = socketMap.begin(); ism != socketMap.end(); ++ism)
+    {
+        QTcpSocket *socket = ism.value();
 
+        socket->close();
+        socket->deleteLater();
+
+        socketMap.remove(socket);
+    }
+
+    // Cleanup the server
     server->close();
     server->deleteLater();
     server = 0;
+
+    emit connectionCount(socketMap.size());
+    emit warning(classname, "stopped");
 }
 
 void TCPServer::sendData(const QByteArray &data)
@@ -54,20 +68,27 @@ void TCPServer::sendData(const QByteArray &data)
         return;
 
     // Do nothing if there are no active connections
-    if (socketList.size() <= 0)
+    if (socketMap.size() <= 0)
         return;
 
-    // Build and send the package
-    QByteArray header = "TNO";
-    for(int i = 0; i < socketList.size(); ++i)
+    // Build the message
+    QByteArray message;
+    message.append("TNO");  // Header
+    message.append(IntToArray((quint16) data.size()));
+    message.append(data);
+
+    // Send the message
+    QMap<QTcpSocket *, QTcpSocket *>::iterator ism;
+    for (ism = socketMap.begin(); ism != socketMap.end(); ++ism)
     {
-        socketList.at(i)->write(header);
-        socketList.at(i)->write(IntToArray((quint16) data.size()));
-        socketList.at(i)->write(data);
-        if (!socketList.at(i)->flush())
+        QTcpSocket *socket = ism.value();
+
+        socketMap[socket]->write(message);
+        if (!socketMap[socket]->flush())
             emit warning(classname, "TCP server socket flush failed");
-        emit info(classname, "send data: " + QString(data));
     }
+
+    emit info(classname, "send data: " + QString(data));
 }
 
 void TCPServer::clientDataReceived(const QByteArray &data)
@@ -82,32 +103,23 @@ void TCPServer::connectClient()
     {
         QTcpSocket *socket = server->nextPendingConnection();
         QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(disconnectClient()));
-        socketList.append(socket);
+
+        socketMap[socket] = socket;
     }
 
-    emit connectionCount(socketList.size());
+    emit connectionCount(socketMap.size());
 }
 
 void TCPServer::disconnectClient()
 {
     QTcpSocket* socket = (QTcpSocket*)sender();
 
-    // TODO: This should be done more efficient
-    int removed = 0;
-    for(int i = 0; i < socketList.size(); ++i)
-    {
-        if (socketList.at(i) == socket)
-        {
-            socket->deleteLater();
-            socketList.removeAt(i);
-            removed++;
-        }
-    }
+    // Cleanup specific socket
+    socketMap[socket]->close();
+    socketMap[socket]->deleteLater();
+    socketMap.remove(socket);
 
-    if(removed != 1)
-        emit error(classname, "problem removing connection, count: " + QString::number(removed));
-
-    emit connectionCount(socketList.size());
+    emit connectionCount(socketMap.size());
 }
 
 void TCPServer::clientInfo(const QString &sender, const QString &message)

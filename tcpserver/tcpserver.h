@@ -12,7 +12,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
-#include <QList>
+#include <QMap>
 #include <QByteArray>
 #include <QDataStream>
 
@@ -48,7 +48,7 @@ private slots:
 
 private:
     QTcpServer *server;
-    QList<QTcpSocket *> socketList;
+    QMap<QTcpSocket *, QTcpSocket *> socketMap;
 
     QString classname;
 };
