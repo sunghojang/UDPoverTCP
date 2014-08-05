@@ -5,8 +5,6 @@ SUBDIRS += \
     tcpclient \
     udpclient\
 \
-    timedsignal \
-\
     htmllogger \
 \
     snb \
