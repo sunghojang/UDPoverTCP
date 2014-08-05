@@ -6,7 +6,6 @@
 
 include(../tcpserver.pri)
 include(../tcpclient.pri)
-include(../udpserver.pri)
 include(../udpclient.pri)
 
 QT       += core
