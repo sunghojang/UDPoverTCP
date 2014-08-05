@@ -29,15 +29,20 @@ bool UDPClient::connect(const qint64 &port)
         emit error(classname, "could not connect to readData");
     QObject::connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
 
+#ifdef Q_OS_WIN32
+    /* Windows */
+    if (!udpSocket->bind(port, QUdpSocket::ReuseAddressHint))
+    {
+        emit error(classname, "bind (with ReuseAddressHint) failed (win32)");
+        return false;
+    }
+#else
     if (!udpSocket->bind(port, QUdpSocket::ShareAddress))
     {
-        emit warning(classname, "bind (with ShareAddress) failed");
-        if (!udpSocket->bind(port, QUdpSocket::ReuseAddressHint))
-        {
-            emit info(classname, "bind (with ReuseAddressHint) failed");
-            return false;
-        }
+        emit error(classname, "bind (with ShareAddress) failed");
+        return false;
     }
+#endif
 
     return true;
 }
