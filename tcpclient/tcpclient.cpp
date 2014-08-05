@@ -16,6 +16,28 @@ TCPClient::TCPClient(QObject *parent)
     classname = "TCPClient";
 }
 
+
+bool TCPClient::connect(QTcpSocket *socket)
+{
+    // Check if the socket is already initialised
+    if(tcpSocket)
+        return false;
+
+    tcpSocket = socket;
+
+    QObject::connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+    QObject::connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
+
+    // Init datastore
+    blockSize = 0;
+    buffer = new QByteArray();
+    buffer->clear();
+
+    clientConnection = false;
+
+    return true;
+}
+
 bool TCPClient::connect(const QString &host, const qint64 &port)
 {
     // Check if the socket is already initialised
@@ -40,6 +62,8 @@ bool TCPClient::connect(const QString &host, const qint64 &port)
 
     tcpSocket->connectToHost(host, port);
 
+    clientConnection = true;
+
     return true;
 }
 
@@ -47,9 +71,9 @@ void TCPClient::disconnect()
 {
     emit warning(classname, "disconnected");
 
-    // Disconnect
-    tcpSocket->disconnectFromHost();
-    //tcpSocket->abort();
+    // Disconnect (if clientConnection)
+    if (clientConnection)
+        tcpSocket->disconnectFromHost();
 
     // Reset
     tcpSocket = 0;

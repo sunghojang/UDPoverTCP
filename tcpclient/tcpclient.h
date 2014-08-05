@@ -19,6 +19,7 @@ class TCPClient : public QObject
 public:
     TCPClient(QObject *parent = 0);
 
+    bool connect(QTcpSocket *socket);
     bool connect(const QString &host, const qint64 &port);
     void disconnect();
 
@@ -36,6 +37,7 @@ private slots:
 private:
     qint64 port;
     QString host;
+    bool clientConnection;
     QTcpSocket *tcpSocket;
 
     QString classname;
