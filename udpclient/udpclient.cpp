@@ -47,10 +47,21 @@ void UDPClient::disconnect()
 
     // Disconnect
     udpSocket->disconnectFromHost();
-    //udpSocket->abort();
+    udpSocket->deleteLater();
 
     // Reset
     udpSocket = 0;
+}
+
+void UDPClient::sendData(const QByteArray &data)
+{
+    if (!udpSocket)
+        return;
+
+    udpSocket->writeDatagram(data.data(), data.size(), QHostAddress::Broadcast, port);
+    udpSocket->flush();
+
+    emit info(classname, "send data: " + QString(data));
 }
 
 void UDPClient::readData()
