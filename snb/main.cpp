@@ -9,7 +9,6 @@
 
 #include "tcpserver.h"
 #include "tcpclient.h"
-#include "udpserver.h"
 #include "udpclient.h"
 
 int main(int argc, char *argv[])
