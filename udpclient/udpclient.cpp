@@ -23,6 +23,7 @@ bool UDPClient::connect(const qint64 &port)
     this->port = port;
 
     udpSocket = new QUdpSocket(this);
+    sendDataFilter.clear();
 
 
     if (!QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData())))
@@ -64,6 +65,9 @@ void UDPClient::sendData(const QByteArray &data)
     if (!udpSocket)
         return;
 
+    if (!sendDataFilter.contains(data))
+        sendDataFilter.append(data);
+
     udpSocket->writeDatagram(data.data(), data.size(), QHostAddress::Broadcast, port);
     udpSocket->flush();
 
@@ -78,6 +82,9 @@ void UDPClient::readData()
         QByteArray data;
         data.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(data.data(), data.size());
+
+        if (sendDataFilter.contains(data))
+            return;
 
         emit info(classname, "received data: " + QString(data));
         emit dataReceived(data);
