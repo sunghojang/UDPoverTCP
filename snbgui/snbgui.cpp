@@ -152,6 +152,7 @@ bool SNBGui::controlTcpServer(const bool &start)
     if(start)
     {
         QObject::connect(tcpserver, SIGNAL(connectionCount(int)), this, SLOT(updateConnectionCount(int)));
+        QObject::connect(tcpserver, SIGNAL(dataReceived(QByteArray)), udpclient, SLOT(sendData(QByteArray)));
 
         // Connect logging
         QObject::connect(tcpserver, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
