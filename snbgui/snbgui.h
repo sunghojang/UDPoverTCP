@@ -42,6 +42,8 @@ private:
     bool controlTcpClient(const bool &start);
     bool controlUdpClient(const bool &start, const bool &server);
 
+    void addIpAddressToLog();
+
     Ui::SNBGui *ui;
     HTMLLogger logger;
 

@@ -7,6 +7,8 @@
 #include "snbgui.h"
 #include "ui_snbgui.h"
 
+#include <QNetworkInterface>
+
 SNBGui::SNBGui(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::SNBGui),
@@ -75,6 +77,10 @@ void SNBGui::on_buttonUTStartStop_clicked()
         // Create the service
         tcpserver = new TCPServer();
         udpclient = new UDPClient();
+
+        // Add IP Addresses to logwindow
+        addIpAddressToLog();
+
 
         // Start the services
         controlTcpServer(_start);
@@ -236,4 +242,24 @@ bool SNBGui::controlUdpClient(const bool &start, const bool& server)
         udpclient->deleteLater();
     }
     return true;
+}
+
+void SNBGui::addIpAddressToLog()
+{
+    QList<QHostAddress> list = QNetworkInterface::allAddresses();
+    for(int i = 0; i < list.size(); ++i)
+    {
+        if (list[i].protocol() == QAbstractSocket::IPv4Protocol )
+        {
+            logger.addInfo(classname, " - Address IPv4: " + list[i].toString());
+        }
+        else if (list[i].protocol() == QAbstractSocket::IPv6Protocol )
+        {
+            logger.addInfo(classname, " - Address IPv6: " + list[i].toString());
+        }
+        else
+        {
+            logger.addWarning(classname, " - unknown: " + list[i].toString());
+        }
+    }
 }
