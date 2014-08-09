@@ -7,6 +7,5 @@ SUBDIRS += \
 \
     htmllogger \
 \
-    snb \
     snbgui \
     snbtests

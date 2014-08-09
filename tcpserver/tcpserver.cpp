@@ -79,6 +79,11 @@ void TCPServer::sendData(const QByteArray &data)
     emit info(classname, "send data: " + QString(data));
 }
 
+void TCPServer::clientDataReceived(const QByteArray &data)
+{
+    emit dataReceived(data);
+}
+
 void TCPServer::connectClient()
 {
     emit info(classname, "adding new connection");
@@ -88,7 +93,17 @@ void TCPServer::connectClient()
     {
         QTcpSocket *socket = server->nextPendingConnection();
         QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(disconnectClient()));
+
         socketMap[socket] = socket;
+
+        TCPClient *client = new TCPClient(this);
+        client->connect(socket);
+        QObject::connect(client, SIGNAL(dataReceived(QByteArray)), this, SLOT(clientDataReceived(QByteArray)));
+        QObject::connect(client, SIGNAL(info(QString,QString)), this, SLOT(clientInfo(QString,QString)));
+        QObject::connect(client, SIGNAL(warning(QString,QString)), this, SLOT(clientWarning(QString,QString)));
+        QObject::connect(client, SIGNAL(error(QString,QString)), this, SLOT(clientError(QString,QString)));
+
+        clientMap[socket] = client;
     }
 
     emit connectionCount(socketMap.size());
@@ -99,11 +114,29 @@ void TCPServer::disconnectClient()
     QTcpSocket* socket = (QTcpSocket*)sender();
 
     // Cleanup specific socket
+    clientMap[socket]->disconnect();
+    clientMap[socket]->deleteLater();
+    clientMap.remove(socket);
     socketMap[socket]->close();
     socketMap[socket]->deleteLater();
     socketMap.remove(socket);
 
     emit connectionCount(socketMap.size());
+}
+
+void TCPServer::clientInfo(const QString &sender, const QString &message)
+{
+    emit info(classname + "->" + sender, message);
+}
+
+void TCPServer::clientWarning(const QString &sender, const QString &message)
+{
+    emit warning(classname + "->" + sender, message);
+}
+
+void TCPServer::clientError(const QString &sender, const QString &message)
+{
+    emit error(classname + "->" + sender, message);
 }
 
 QByteArray IntToArray(qint16 source) // Use qint16 to ensure that the number have 2 bytes

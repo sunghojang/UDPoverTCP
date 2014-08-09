@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>357</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -109,7 +109,20 @@
        </layout>
       </item>
       <item>
-       <widget class="QTextEdit" name="textEditLogger"/>
+       <widget class="QTextEdit" name="textEditLogger">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="undoRedoEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -145,13 +158,21 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>spinBoxBroadcastPort</tabstop>
+  <tabstop>spinBoxListenPort</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>buttonSend</tabstop>
+  <tabstop>buttonClearLogger</tabstop>
+  <tabstop>textEditLogger</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

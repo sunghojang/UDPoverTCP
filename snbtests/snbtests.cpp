@@ -38,9 +38,7 @@ void SNBTests::updateLog(QString log)
 
 void SNBTests::receivedData(QByteArray data)
 {
-    Q_UNUSED(data)
-    // If we want to do anything with this data
-    //logger.addInfo("DATA", QString(data));
+    logger.addInfo("DATA", QString(data));
 }
 
 void SNBTests::on_spinBoxListenPort_valueChanged(int arg1)
@@ -54,7 +52,7 @@ void SNBTests::on_spinBoxListenPort_valueChanged(int arg1)
 
     // Start again with new port
     udpListenClient = new UDPClient();
-    //QObject::connect(udpListenClient, SIGNAL(dataReceived(QByteArray)), this, SLOT(receivedData(QByteArray)));
+    QObject::connect(udpListenClient, SIGNAL(dataReceived(QByteArray)), this, SLOT(receivedData(QByteArray)));
 
     // Connect logging
     QObject::connect(udpListenClient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));

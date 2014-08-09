@@ -14,6 +14,7 @@
 #include "tcpclient.h"
 #include "tcpserver.h"
 #include "udpclient.h"
+//#include "udpserver.h"
 
 namespace Ui {
 class SNBGui;
@@ -49,6 +50,7 @@ private:
     TCPClient *tcpclient;
     TCPServer *tcpserver;
     UDPClient *udpclient;
+//    UDPServer *udpserver;
 
     bool tuStarted;
     bool utStarted;

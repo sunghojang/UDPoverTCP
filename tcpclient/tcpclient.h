@@ -19,6 +19,7 @@ class TCPClient : public QObject
 public:
     TCPClient(QObject *parent = 0);
 
+    bool connect(QTcpSocket *socket);
     bool connect(const QString &host, const qint64 &port);
     void disconnect();
 
@@ -29,6 +30,9 @@ signals:
     void warning(QString sender, QString warning);
     void error(QString sender, QString error);
 
+public slots:
+    void sendData(const QByteArray &data);
+
 private slots:
     void readData();
     void displayError(QAbstractSocket::SocketError socketError);
@@ -36,6 +40,7 @@ private slots:
 private:
     qint64 port;
     QString host;
+    bool clientConnection;
     QTcpSocket *tcpSocket;
 
     QString classname;

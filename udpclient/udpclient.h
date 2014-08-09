@@ -7,6 +7,7 @@
 #ifndef UDPCLIENT_H
 #define UDPCLIENT_H
 
+#include <QList>
 #include <QObject>
 #include <QString>
 #include <QByteArray>
@@ -40,7 +41,7 @@ private:
     QUdpSocket *udpSocket;
 
     QString classname;
-
+    QList<QByteArray> sendDataFilter;
 };
 
 #endif // CLIENT_H

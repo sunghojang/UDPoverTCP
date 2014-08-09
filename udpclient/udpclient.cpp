@@ -12,7 +12,7 @@ UDPClient::UDPClient(QObject *parent) :
     classname = "UDPClient";
 }
 
-bool UDPClient::connect(const qint64 &port, const bool &listen)
+bool UDPClient::connect(const qint64 &port)
 {
     // Check if the socket is already initialised
     if(udpSocket)
@@ -23,12 +23,11 @@ bool UDPClient::connect(const qint64 &port, const bool &listen)
     this->port = port;
 
     udpSocket = new QUdpSocket(this);
+    sendDataFilter.clear();
 
-    if (listen)
-    {
-        if (!QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData())))
-            emit error(classname, "could not connect to readData");
-    }
+
+    if (!QObject::connect(udpSocket, SIGNAL(readyRead()), this, SLOT(readData())))
+        emit error(classname, "could not connect to readData");
     QObject::connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
 
 #ifdef Q_OS_WIN32
@@ -66,6 +65,8 @@ void UDPClient::sendData(const QByteArray &data)
     if (!udpSocket)
         return;
 
+    sendDataFilter.append(data);
+
     udpSocket->writeDatagram(data.data(), data.size(), QHostAddress::Broadcast, port);
     udpSocket->flush();
 
@@ -80,6 +81,13 @@ void UDPClient::readData()
         QByteArray data;
         data.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(data.data(), data.size());
+
+        // If it is data we send ourselves, we remove it again from the filterList and do not send it back
+        if (sendDataFilter.contains(data))
+        {
+            sendDataFilter.removeOne(data);
+            return;
+        }
 
         emit info(classname, "received data: " + QString(data));
         emit dataReceived(data);

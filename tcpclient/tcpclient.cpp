@@ -9,11 +9,35 @@
 #include "tcpclient.h"
 
 static inline qint16 ArrayToInt(QByteArray source);
+static inline QByteArray IntToArray(qint16 source);
+
 
 TCPClient::TCPClient(QObject *parent)
     :   QObject(parent), tcpSocket(0)
 {
     classname = "TCPClient";
+}
+
+
+bool TCPClient::connect(QTcpSocket *socket)
+{
+    // Check if the socket is already initialised
+    if(tcpSocket)
+        return false;
+
+    tcpSocket = socket;
+
+    QObject::connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readData()));
+    QObject::connect(tcpSocket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(displayError(QAbstractSocket::SocketError)));
+
+    // Init datastore
+    blockSize = 0;
+    buffer = new QByteArray();
+    buffer->clear();
+
+    clientConnection = false;
+
+    return true;
 }
 
 bool TCPClient::connect(const QString &host, const qint64 &port)
@@ -40,6 +64,8 @@ bool TCPClient::connect(const QString &host, const qint64 &port)
 
     tcpSocket->connectToHost(host, port);
 
+    clientConnection = true;
+
     return true;
 }
 
@@ -47,14 +73,33 @@ void TCPClient::disconnect()
 {
     emit warning(classname, "disconnected");
 
-    // Disconnect
-    tcpSocket->disconnectFromHost();
-    //tcpSocket->abort();
+    // Disconnect (if clientConnection)
+    if (clientConnection)
+        tcpSocket->disconnectFromHost();
 
     // Reset
     tcpSocket = 0;
     blockSize = 0;
     buffer->clear();
+}
+
+void TCPClient::sendData(const QByteArray &data)
+{
+    if (!tcpSocket)
+        return;
+
+    // Build the message
+    QByteArray message;
+    message.append("TNO");  // Header
+    message.append(IntToArray((quint16) data.size()));
+    message.append(data);
+
+    // Send the message
+    tcpSocket->write(message);
+    if (!tcpSocket->flush())
+        emit warning(classname, "TCP client socket flush failed");
+
+    emit info(classname, "send data: " + QString(data));
 }
 
 void TCPClient::readData()
@@ -126,5 +171,14 @@ qint16 ArrayToInt(QByteArray source) // Use qint16 to ensure that the number hav
     qint16 temp;
     QDataStream data(&source, QIODevice::ReadWrite);
     data >> temp;
+    return temp;
+}
+
+QByteArray IntToArray(qint16 source) // Use qint16 to ensure that the number have 2 bytes
+{
+    //Avoid use of cast, this is the Qt way to serialize objects
+    QByteArray temp;
+    QDataStream data(&temp, QIODevice::ReadWrite);
+    data << source;
     return temp;
 }
