@@ -107,6 +107,13 @@
           </item>
          </layout>
         </item>
+        <item row="6" column="1">
+         <widget class="QCheckBox" name="checkBoxUTBidirectionalEnabled">
+          <property name="text">
+           <string>Bidirectional communication</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="tabTU">
@@ -180,7 +187,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="buttonTUStartStop">
@@ -203,6 +210,13 @@
            </spacer>
           </item>
          </layout>
+        </item>
+        <item row="5" column="1">
+         <widget class="QCheckBox" name="checkBox">
+          <property name="text">
+           <string>CheckBox</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -257,6 +271,20 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>buttonClearLogger</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>spinBoxUdpListenPort</tabstop>
+  <tabstop>spinBoxTcpServerPort</tabstop>
+  <tabstop>checkBoxUTBidirectionalEnabled</tabstop>
+  <tabstop>buttonUTStartStop</tabstop>
+  <tabstop>lineEditTcpServerAddress</tabstop>
+  <tabstop>spinBoxTcpClientPort</tabstop>
+  <tabstop>spinBoxUdpBroadcastPort</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>buttonTUStartStop</tabstop>
+  <tabstop>textEditLogger</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
