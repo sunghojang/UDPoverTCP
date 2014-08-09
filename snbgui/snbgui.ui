@@ -37,14 +37,14 @@
         <item row="1" column="0">
          <layout class="QFormLayout" name="formLayout"/>
         </item>
-        <item row="3" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="labelUdpListenPort">
           <property name="text">
            <string>UDP Listen Port:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="2" column="1">
          <widget class="QSpinBox" name="spinBoxUdpListenPort">
           <property name="minimum">
            <number>1000</number>
@@ -60,14 +60,14 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="labelTcpServerPort">
           <property name="text">
            <string>TCP Server Port:</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="3" column="1">
          <widget class="QSpinBox" name="spinBoxTcpServerPort">
           <property name="minimum">
            <number>1000</number>
@@ -83,7 +83,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="5" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="QPushButton" name="buttonUTStartStop">
@@ -107,10 +107,13 @@
           </item>
          </layout>
         </item>
-        <item row="6" column="1">
+        <item row="4" column="1">
          <widget class="QCheckBox" name="checkBoxUTBidirectionalEnabled">
           <property name="text">
            <string>Bidirectional communication</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -164,14 +167,14 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="labelUdpBroadcastPort">
           <property name="text">
            <string>UDP Broadcast Port:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="3" column="1">
          <widget class="QSpinBox" name="spinBoxUdpBroadcastPort">
           <property name="minimum">
            <number>1000</number>
@@ -187,7 +190,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
+        <item row="5" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="buttonTUStartStop">
@@ -211,10 +214,13 @@
           </item>
          </layout>
         </item>
-        <item row="5" column="1">
-         <widget class="QCheckBox" name="checkBox">
+        <item row="4" column="1">
+         <widget class="QCheckBox" name="checkBoxTUBidirectionalEnabled">
           <property name="text">
-           <string>CheckBox</string>
+           <string>Bidirectional communication</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -281,7 +287,7 @@
   <tabstop>lineEditTcpServerAddress</tabstop>
   <tabstop>spinBoxTcpClientPort</tabstop>
   <tabstop>spinBoxUdpBroadcastPort</tabstop>
-  <tabstop>checkBox</tabstop>
+  <tabstop>checkBoxTUBidirectionalEnabled</tabstop>
   <tabstop>buttonTUStartStop</tabstop>
   <tabstop>textEditLogger</tabstop>
  </tabstops>
