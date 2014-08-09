@@ -65,8 +65,7 @@ void UDPClient::sendData(const QByteArray &data)
     if (!udpSocket)
         return;
 
-    if (!sendDataFilter.contains(data))
-        sendDataFilter.append(data);
+    sendDataFilter.append(data);
 
     udpSocket->writeDatagram(data.data(), data.size(), QHostAddress::Broadcast, port);
     udpSocket->flush();
@@ -83,8 +82,12 @@ void UDPClient::readData()
         data.resize(udpSocket->pendingDatagramSize());
         udpSocket->readDatagram(data.data(), data.size());
 
+        // If it is data we send ourselves, we remove it again from the filterList and do not send it back
         if (sendDataFilter.contains(data))
+        {
+            sendDataFilter.removeOne(data);
             return;
+        }
 
         emit info(classname, "received data: " + QString(data));
         emit dataReceived(data);
