@@ -152,7 +152,10 @@ bool SNBGui::controlTcpServer(const bool &start)
     if(start)
     {
         QObject::connect(tcpserver, SIGNAL(connectionCount(int)), this, SLOT(updateConnectionCount(int)));
-        QObject::connect(tcpserver, SIGNAL(dataReceived(QByteArray)), udpclient, SLOT(sendData(QByteArray)));
+        if (ui->checkBoxTUBidirectionalEnabled->isChecked())
+        {
+            QObject::connect(tcpserver, SIGNAL(dataReceived(QByteArray)), udpclient, SLOT(sendData(QByteArray)));
+        }
 
         // Connect logging
         QObject::connect(tcpserver, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
@@ -213,7 +216,10 @@ bool SNBGui::controlUdpClient(const bool &start, const bool& server)
         }
         else
         {
-            QObject::connect(udpclient, SIGNAL(dataReceived(QByteArray)), tcpclient, SLOT(sendData(QByteArray)));
+            if (ui->checkBoxUTBidirectionalEnabled->isChecked())
+            {
+                QObject::connect(udpclient, SIGNAL(dataReceived(QByteArray)), tcpclient, SLOT(sendData(QByteArray)));
+            }
         }
         // Connect logging
         QObject::connect(udpclient, SIGNAL(info(QString,QString)), &logger, SLOT(addInfo(QString,QString)));
