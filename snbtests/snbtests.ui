@@ -165,6 +165,14 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>spinBoxBroadcastPort</tabstop>
+  <tabstop>spinBoxListenPort</tabstop>
+  <tabstop>lineEdit</tabstop>
+  <tabstop>buttonSend</tabstop>
+  <tabstop>buttonClearLogger</tabstop>
+  <tabstop>textEditLogger</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
