@@ -19,7 +19,7 @@ class UDPClient : public QObject
 public:
     explicit UDPClient(QObject *parent = 0);
 
-    bool connect(const qint64 &port = 49999, const bool &listen = true);
+    bool connect(const qint64 &port = 49999);
     void disconnect();
 
 signals:
